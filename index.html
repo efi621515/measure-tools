@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0b1220">
+<title>ארגז כלים – מדידה</title>
+<link rel="manifest" href="manifest.json">
+<style>
+  :root{
+    --bg:#0b1220; --panel:#121b2e; --panel2:#0f1828; --line:#23314d;
+    --txt:#e8eefc; --muted:#8ea0c4; --accent:#3da9fc; --good:#34d399; --warn:#fbbf24; --bad:#f87171;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+  html,body{margin:0; height:100%}
+  body{
+    background:var(--bg); color:var(--txt);
+    font-family:"Segoe UI",system-ui,Arial,sans-serif;
+    display:flex; flex-direction:column; min-height:100dvh;
+    padding-top:env(safe-area-inset-top); padding-bottom:env(safe-area-inset-bottom);
+  }
+  header{padding:14px 16px 6px; text-align:center}
+  header h1{margin:0; font-size:19px; font-weight:700; letter-spacing:.3px}
+  header p{margin:2px 0 0; font-size:12px; color:var(--muted)}
+  /* Tabs */
+  nav{display:flex; gap:6px; padding:10px 10px 4px; overflow-x:auto}
+  nav button{
+    flex:1 0 auto; min-width:72px; padding:10px 8px; border:1px solid var(--line);
+    background:var(--panel2); color:var(--muted); border-radius:12px; font-size:13px;
+    font-weight:600; cursor:pointer; transition:.15s;
+  }
+  nav button.active{background:var(--accent); color:#04121f; border-color:var(--accent)}
+  main{flex:1; padding:10px 16px 24px; overflow-y:auto}
+  .view{display:none; animation:fade .2s ease}
+  .view.active{display:block}
+  @keyframes fade{from{opacity:0; transform:translateY(6px)}to{opacity:1}}
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:16px; margin-bottom:14px}
+  .row{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+  .big{font-size:42px; font-weight:800; line-height:1.05; font-variant-numeric:tabular-nums}
+  .unit{font-size:16px; color:var(--muted); font-weight:600}
+  .muted{color:var(--muted); font-size:13px; line-height:1.6}
+  button.act{
+    background:var(--accent); color:#04121f; border:none; border-radius:12px;
+    padding:13px 16px; font-size:15px; font-weight:700; cursor:pointer; flex:1
+  }
+  button.ghost{background:transparent; color:var(--txt); border:1px solid var(--line)}
+  input[type=range]{width:100%; accent-color:var(--accent)}
+  input[type=number]{
+    background:var(--panel2); border:1px solid var(--line); color:var(--txt);
+    border-radius:10px; padding:10px; font-size:16px; width:110px; text-align:center
+  }
+  label{font-size:13px; color:var(--muted)}
+  .pill{font-size:12px; padding:3px 9px; border-radius:999px; background:var(--panel2); border:1px solid var(--line); color:var(--muted)}
+  .ok{color:var(--good)} .danger{color:var(--bad)} .warnc{color:var(--warn)}
+  canvas{display:block; width:100%; background:#fff; border-radius:10px}
+  /* Level */
+  #levelStage{position:relative; width:260px; height:260px; margin:6px auto 0;
+    border-radius:50%; background:radial-gradient(circle at 50% 40%, #16233c, #0c1424);
+    border:2px solid var(--line); overflow:hidden}
+  .ring{position:absolute; border:1px solid var(--line); border-radius:50%; top:50%; left:50%; transform:translate(-50%,-50%)}
+  .cross{position:absolute; background:var(--line)}
+  #bubble{position:absolute; width:64px; height:64px; border-radius:50%;
+    top:50%; left:50%; transform:translate(-50%,-50%);
+    background:radial-gradient(circle at 40% 35%, rgba(80,255,180,.95), rgba(40,200,140,.55));
+    box-shadow:0 0 20px rgba(52,211,153,.5); transition:background .15s}
+  #bubble.level{background:radial-gradient(circle at 40% 35%, rgba(120,255,160,1), rgba(52,211,153,.7))}
+  .bar{height:14px; border-radius:8px; background:var(--panel2); overflow:hidden; border:1px solid var(--line)}
+  .bar > i{display:block; height:100%; width:0; background:linear-gradient(90deg,var(--good),var(--warn),var(--bad)); transition:width .1s}
+  .notice{font-size:13px; line-height:1.7; background:var(--panel2); border:1px solid var(--line); border-radius:12px; padding:12px}
+  code{background:#06101f; padding:2px 6px; border-radius:6px; font-size:12px; color:#9fd0ff; direction:ltr; display:inline-block}
+  .center{text-align:center}
+</style>
+</head>
+<body>
+<header>
+  <h1>ארגז כלים למדידה</h1>
+  <p>סרגל · מד מרחק · פלס · גלאי מתכות</p>
+</header>
+
+<nav>
+  <button data-tab="ruler" class="active">📏 סרגל</button>
+  <button data-tab="dist">📐 מד מרחק</button>
+  <button data-tab="level">🫧 פלס</button>
+  <button data-tab="metal">🧲 גלאי מתכות</button>
+</nav>
+
+<main>
+  <!-- ===================== RULER ===================== -->
+  <section id="ruler" class="view active">
+    <div class="card" id="calCard">
+      <b>כיול חד‑פעמי</b>
+      <p class="muted">הדפדפן לא יודע את הגודל הפיזי של המסך. הנח כרטיס אשראי/תעודה (בגודל סטנדרטי) על המסך והתאם את המלבן עד שהוא חופף בדיוק לרוחב הכרטיס.</p>
+      <div id="cardOutline" style="height:54px; border:2px dashed var(--accent); border-radius:8px; margin:10px auto; background:rgba(61,169,252,.08)"></div>
+      <input type="range" id="calSlider" min="120" max="420" value="300">
+      <div class="row" style="margin-top:10px">
+        <button class="act" id="calSave">שמור כיול ✓</button>
+        <span class="pill" id="calStatus">לא מכויל</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <b>סרגל</b>
+        <button class="ghost" style="flex:0; padding:8px 14px; border-radius:10px" id="recal">כייל מחדש</button>
+      </div>
+      <p class="muted">ס"מ למעלה · אינץ' למטה. דייק את הכיול לקבלת מדידה אמיתית.</p>
+      <canvas id="rulerCanvas" height="150"></canvas>
+    </div>
+  </section>
+
+  <!-- ===================== DISTANCE ===================== -->
+  <section id="dist" class="view">
+    <div class="card">
+      <b>מד מרחק לפי זווית</b>
+      <p class="muted">שיטה גאומטרית (אומדן): מחזיקים את הטלפון בגובה ידוע, מכוונים את הקצה העליון אל <b>בסיס</b> העצם (איפה שהוא נוגע ברצפה), והזווית נותנת את המרחק האופקי.</p>
+      <div class="row" style="margin:8px 0">
+        <label>גובה האחיזה (מ'):</label>
+        <input type="number" id="holdH" value="1.5" step="0.05" min="0.3">
+      </div>
+      <div class="row">
+        <button class="act" id="distStart">הפעל חיישן</button>
+        <button class="act ghost" id="distMark">קבע נקודה 📍</button>
+      </div>
+    </div>
+    <div class="card center">
+      <div class="muted">זווית שיפוע נוכחית</div>
+      <div class="big" id="angleVal">––<span class="unit">°</span></div>
+      <hr style="border-color:var(--line); margin:14px 0">
+      <div class="muted">מרחק אופקי משוער</div>
+      <div class="big ok" id="distVal">––<span class="unit"> מ'</span></div>
+      <p class="muted" id="distHint">לחץ "הפעל חיישן" ואז כוון אל בסיס העצם.</p>
+    </div>
+  </section>
+
+  <!-- ===================== LEVEL ===================== -->
+  <section id="level" class="view">
+    <div class="card center">
+      <div id="levelStage">
+        <div class="ring" style="width:64px;height:64px"></div>
+        <div class="ring" style="width:150px;height:150px"></div>
+        <div class="cross" style="width:2px; height:100%; top:0; left:50%; transform:translateX(-50%)"></div>
+        <div class="cross" style="width:100%; height:2px; top:50%; left:0; transform:translateY(-50%)"></div>
+        <div id="bubble"></div>
+      </div>
+      <div class="row" style="justify-content:center; margin-top:14px; gap:18px">
+        <div><div class="muted">רוחב</div><div class="big" id="rollVal" style="font-size:26px">0<span class="unit">°</span></div></div>
+        <div><div class="muted">אורך</div><div class="big" id="pitchVal" style="font-size:26px">0<span class="unit">°</span></div></div>
+      </div>
+      <div id="levelTag" class="pill" style="margin-top:10px">––</div>
+    </div>
+    <div class="card row">
+      <button class="act" id="levelStart">הפעל פלס</button>
+      <button class="act ghost" id="levelCal">כייל לאפס</button>
+    </div>
+  </section>
+
+  <!-- ===================== METAL ===================== -->
+  <section id="metal" class="view">
+    <div class="card center">
+      <div class="muted">עוצמת השדה המגנטי</div>
+      <div class="big" id="fieldVal">––<span class="unit"> µT</span></div>
+      <div class="muted" style="margin-top:6px">סטייה מהבסיס</div>
+      <div class="big warnc" id="devVal">––<span class="unit"> µT</span></div>
+      <div class="bar" style="margin-top:12px"><i id="metalBar"></i></div>
+      <div class="row" style="margin-top:14px">
+        <button class="act" id="metalStart">הפעל</button>
+        <button class="act ghost" id="metalBase">קבע בסיס</button>
+        <button class="act ghost" id="metalBeep">🔇 צפצוף</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="notice" id="metalNote">
+        <b>איך זה עובד?</b> הטלפון מודד את השדה המגנטי. מתכת ברזלית קרובה (עד כמה ס"מ) מעוותת אותו והערך קופץ.<br><br>
+        ⚠️ <b>מגבלה:</b> בדפדפן זה עובד <b>רק באנדרואיד (Chrome)</b>, ולרוב צריך להדליק דגל: <code>chrome://flags/#enable-generic-sensor-extra-classes</code> ולרענן. <b>באייפון זה לא נתמך בדפדפן כלל.</b>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+/* ============ Tabs ============ */
+const tabs = document.querySelectorAll('nav button');
+const views = document.querySelectorAll('.view');
+tabs.forEach(b=>b.addEventListener('click',()=>{
+  tabs.forEach(x=>x.classList.remove('active'));
+  views.forEach(v=>v.classList.remove('active'));
+  b.classList.add('active');
+  document.getElementById(b.dataset.tab).classList.add('active');
+  if(b.dataset.tab==='ruler') drawRuler();
+}));
+
+/* iOS 13+ motion permission helper */
+async function requestMotion(){
+  if(typeof DeviceOrientationEvent!=='undefined' &&
+     typeof DeviceOrientationEvent.requestPermission==='function'){
+    try{ return (await DeviceOrientationEvent.requestPermission())==='granted'; }
+    catch{ return false; }
+  }
+  return true; // Android / desktop
+}
+
+/* ============ RULER ============ */
+const CARD_MM = 85.6; // ISO/IEC 7810 ID-1 width
+let pxPerMM = parseFloat(localStorage.getItem('pxPerMM')||'0');
+const calCard = document.getElementById('calCard');
+const cardOutline = document.getElementById('cardOutline');
+const calSlider = document.getElementById('calSlider');
+const calStatus = document.getElementById('calStatus');
+
+function applyCalUI(){
+  cardOutline.style.width = calSlider.value+'px';
+}
+calSlider.addEventListener('input', applyCalUI);
+applyCalUI();
+
+document.getElementById('calSave').addEventListener('click',()=>{
+  const cssW = cardOutline.getBoundingClientRect().width;
+  pxPerMM = cssW / CARD_MM;
+  localStorage.setItem('pxPerMM', pxPerMM);
+  calStatus.textContent = 'מכויל ✓';
+  calStatus.classList.add('ok');
+  calCard.style.display='none';
+  drawRuler();
+});
+document.getElementById('recal').addEventListener('click',()=>{
+  calCard.style.display='block';
+});
+if(pxPerMM>0){ calStatus.textContent='מכויל ✓'; calStatus.classList.add('ok'); calCard.style.display='none'; }
+
+function drawRuler(){
+  const c = document.getElementById('rulerCanvas');
+  const ppm = pxPerMM>0 ? pxPerMM : (96/25.4); // fallback ~assumed
+  const dpr = window.devicePixelRatio||1;
+  const cssW = c.clientWidth, cssH = 150;
+  c.width = Math.round(cssW*dpr); c.height=Math.round(cssH*dpr);
+  const ctx = c.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,cssW,cssH);
+  ctx.fillStyle='#0b1220'; ctx.strokeStyle='#0b1220'; ctx.lineWidth=1;
+  ctx.font='11px sans-serif'; ctx.textBaseline='top';
+  // metric top
+  const mmN = Math.floor(cssW/ppm);
+  for(let mm=0; mm<=mmN; mm++){
+    const x=Math.round(mm*ppm)+0.5; let len=8;
+    if(mm%5===0) len=14; if(mm%10===0) len=24;
+    ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,len); ctx.stroke();
+    if(mm%10===0){ ctx.textAlign='left'; ctx.fillText(mm/10, x+2, len+1); }
+  }
+  // imperial bottom
+  const ppi=ppm*25.4, ppe=ppi/8, eN=Math.floor(cssW/ppe);
+  for(let i=0;i<=eN;i++){
+    const x=Math.round(i*ppe)+0.5; let len=8;
+    if(i%4===0) len=14; if(i%8===0) len=24;
+    ctx.beginPath(); ctx.moveTo(x,cssH); ctx.lineTo(x,cssH-len); ctx.stroke();
+    if(i%8===0){ ctx.textAlign='left'; ctx.fillText((i/8)+'"', x+2, cssH-len-13); }
+  }
+  // baseline labels
+  ctx.fillStyle='#3da9fc'; ctx.textAlign='right';
+  ctx.fillText('ס"מ', cssW-4, 2);
+  ctx.fillText('אינץ\'', cssW-4, cssH-15);
+}
+window.addEventListener('resize', ()=>{ if(document.getElementById('ruler').classList.contains('active')) drawRuler(); });
+drawRuler();
+
+/* ============ LEVEL ============ */
+const ALPHA=0.15, LEVEL_TH=0.4;
+let sBeta=null,sGamma=null,offB=0,offG=0,levelOn=false;
+try{const c=JSON.parse(localStorage.getItem('levelCal')||'{}');offB=c.b||0;offG=c.g||0;}catch{}
+const bubble=document.getElementById('bubble');
+function onLevel(e){
+  if(e.beta==null||e.gamma==null) return;
+  sBeta = sBeta==null?e.beta:ALPHA*e.beta+(1-ALPHA)*sBeta;
+  sGamma= sGamma==null?e.gamma:ALPHA*e.gamma+(1-ALPHA)*sGamma;
+  const pitch=sBeta-offB, roll=sGamma-offG;
+  const isLevel=Math.abs(pitch)<LEVEL_TH && Math.abs(roll)<LEVEL_TH;
+  document.getElementById('rollVal').innerHTML=roll.toFixed(1)+'<span class="unit">°</span>';
+  document.getElementById('pitchVal').innerHTML=pitch.toFixed(1)+'<span class="unit">°</span>';
+  // bubble pos: ±20° -> ±100px
+  const R=100, k=R/20;
+  const x=Math.max(-R,Math.min(R, roll*k));
+  const y=Math.max(-R,Math.min(R, pitch*k));
+  bubble.style.transform=`translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
+  bubble.classList.toggle('level',isLevel);
+  const tag=document.getElementById('levelTag');
+  tag.textContent= isLevel?'מאוזן ✓':'נטוי';
+  tag.className='pill '+(isLevel?'ok':'warnc');
+}
+document.getElementById('levelStart').addEventListener('click',async()=>{
+  if(!await requestMotion()){ alert('לא ניתן אישור לחיישן התנועה'); return; }
+  if(!levelOn){ window.addEventListener('deviceorientation',onLevel); levelOn=true; }
+});
+document.getElementById('levelCal').addEventListener('click',()=>{
+  if(sBeta==null) return;
+  offB=sBeta; offG=sGamma;
+  localStorage.setItem('levelCal',JSON.stringify({b:offB,g:offG}));
+});
+
+/* ============ DISTANCE ============ */
+let distOn=false, curBeta=null, marked=null;
+function onDist(e){
+  if(e.beta==null) return;
+  curBeta=e.beta;
+  // depression below horizontal; phone vertical=90, flat=0
+  const dep=Math.max(0,Math.min(90, e.beta)); // treat beta in [0..90]
+  const ang=90-dep; // angle below horizontal
+  document.getElementById('angleVal').innerHTML=ang.toFixed(1)+'<span class="unit">°</span>';
+}
+document.getElementById('distStart').addEventListener('click',async()=>{
+  if(!await requestMotion()){ alert('לא ניתן אישור לחיישן'); return; }
+  if(!distOn){ window.addEventListener('deviceorientation',onDist); distOn=true;
+    document.getElementById('distHint').textContent='כוון אל בסיס העצם ולחץ "קבע נקודה".'; }
+});
+document.getElementById('distMark').addEventListener('click',()=>{
+  if(curBeta==null){ document.getElementById('distHint').textContent='קודם הפעל את החיישן.'; return; }
+  const h=parseFloat(document.getElementById('holdH').value)||1.5;
+  const angDeg=90-Math.max(0,Math.min(90,curBeta));
+  const theta=angDeg*Math.PI/180;
+  if(angDeg<3||angDeg>87){ document.getElementById('distHint').textContent='הזווית קיצונית מדי — כוון מעט מעלה/מטה.'; return; }
+  const d=h/Math.tan(theta);
+  document.getElementById('distVal').innerHTML=d.toFixed(2)+'<span class="unit"> מ\'</span>';
+  document.getElementById('distHint').textContent='אומדן ±10-20%. גובה אחיזה מדויק = תוצאה מדויקת יותר.';
+});
+
+/* ============ METAL DETECTOR ============ */
+let mag=null, baseline=0, latest=0, beepOn=false, audioCtx=null, osc=null, gain=null;
+const note=document.getElementById('metalNote');
+function startBeep(){
+  if(!audioCtx){ audioCtx=new (window.AudioContext||window.webkitAudioContext)(); }
+  osc=audioCtx.createOscillator(); gain=audioCtx.createGain();
+  gain.gain.value=0; osc.frequency.value=440;
+  osc.connect(gain); gain.connect(audioCtx.destination); osc.start();
+}
+function stopBeep(){ if(osc){osc.stop(); osc.disconnect(); osc=null;} }
+document.getElementById('metalBeep').addEventListener('click',(e)=>{
+  beepOn=!beepOn; e.target.textContent=beepOn?'🔊 צפצוף':'🔇 צפצוף';
+  if(beepOn) startBeep(); else stopBeep();
+});
+function metalReading(){
+  const dev=Math.abs(latest-baseline);
+  document.getElementById('fieldVal').innerHTML=latest.toFixed(1)+'<span class="unit"> µT</span>';
+  document.getElementById('devVal').innerHTML=dev.toFixed(1)+'<span class="unit"> µT</span>';
+  document.getElementById('metalBar').style.width=Math.min(100,dev/50*100)+'%';
+  if(beepOn && gain && audioCtx){
+    gain.gain.value=Math.min(.25, dev/100);
+    osc.frequency.value=300+Math.min(900,dev*30);
+  }
+}
+document.getElementById('metalStart').addEventListener('click',()=>{
+  if(!('Magnetometer' in window)){
+    const ios=/iPhone|iPad|iPod/.test(navigator.userAgent);
+    note.innerHTML = ios
+      ? '🔴 <b>לא נתמך באייפון.</b> WebKit לא חושף מגנטומטר לדפדפן. נדרשת אפליקציה מקומית (Native) לזיהוי מתכות.'
+      : '🔴 <b>לא זמין.</b> באנדרואיד‑Chrome הדלק <code>chrome://flags/#enable-generic-sensor-extra-classes</code>, רענן את הדף (חובה HTTPS) ונסה שוב.';
+    note.classList.add('danger'); return;
+  }
+  try{
+    mag=new Magnetometer({frequency:20});
+    mag.addEventListener('reading',()=>{ latest=Math.hypot(mag.x,mag.y,mag.z); metalReading(); });
+    mag.addEventListener('error',ev=>{ note.innerHTML='🔴 שגיאת חיישן: '+ev.error.name+' (הרשאה/דגל/HTTPS).'; note.classList.add('danger'); });
+    mag.start();
+    note.innerHTML='✅ פעיל. לחץ "קבע בסיס" כשאין מתכת בקרבת מקום, ואז קרב לעצם.'; note.classList.remove('danger');
+  }catch(err){
+    note.innerHTML='🔴 לא ניתן להפעיל: '+err.name+' — '+err.message; note.classList.add('danger');
+  }
+});
+document.getElementById('metalBase').addEventListener('click',()=>{ baseline=latest; });
+
+/* PWA service worker (optional, ignore if file missing) */
+if('serviceWorker' in navigator){ navigator.serviceWorker.register('sw.js').catch(()=>{}); }
+</script>
+</body>
+</html>
