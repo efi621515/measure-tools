@@ -181,50 +181,6 @@
     </div>
   </section>
 
-  <section class="wrap demo">
-    <div class="sec-title">ראו את זה בפעולה</div>
-    <div class="sec-sub">מדידה אמיתית דרך המצלמה — נקודה, קו, ומרחק מדויק</div>
-    <div class="phone">
-      <div class="screen">
-        <div class="cam"></div>
-        <div class="scan"></div>
-        <div class="fp" style="top:24%;left:20%"></div>
-        <div class="fp" style="top:33%;left:74%;animation-delay:.5s"></div>
-        <div class="fp" style="top:70%;left:17%;animation-delay:1s"></div>
-        <div class="fp" style="top:80%;left:63%;animation-delay:1.5s"></div>
-        <div class="fp" style="top:48%;left:50%;animation-delay:.8s"></div>
-        <div class="hud" id="demoHud">📐 מד מרחק</div>
-        <div class="cross"></div>
-        <div class="line"></div>
-        <div class="rip ripA"></div>
-        <div class="rip ripB"></div>
-        <div class="dotA"></div>
-        <div class="dotB"></div>
-        <div class="pill"><span id="pillNum">39.4</span> ס"מ</div>
-      </div>
-    </div>
-  </section>
-  <script>
-  (function(){
-    var hud=document.getElementById('demoHud'),num=document.getElementById('pillNum');
-    if(!hud||!num) return;
-    function cycle(){
-      hud.textContent='📐 כוון את הצלב';
-      setTimeout(function(){hud.textContent='⚪ נקודה ראשונה';},1350);
-      setTimeout(function(){hud.textContent='⚪ נקודה שנייה';},3050);
-      setTimeout(function(){
-        hud.textContent='📏 מודד…';
-        var v=0,t=setInterval(function(){
-          v+=Math.random()*5+2.5;
-          if(v>=39.4){v=39.4;clearInterval(t);hud.textContent='✓ נמדד · 39.4 ס"מ';}
-          num.textContent=v.toFixed(1);
-        },40);
-      },3450);
-    }
-    cycle();setInterval(cycle,6000);
-  })();
-  </script>
-
   <section id="tools" class="wrap">
     <div class="sec-title">שלושה כלים. אפליקציה אחת.</div>
     <div class="sec-sub">כל מה שצריך כדי למדוד, ליישר ולגלות</div>
