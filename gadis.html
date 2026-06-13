@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GADIS — ארגז כלים למדידה</title>
+<meta name="description" content="GADIS — מד מרחק AR, פלס דיגיטלי וגלאי מתכות. כל כלי המדידה בכיס שלך. בעברית, אנגלית וערבית.">
+<style>
+  :root{
+    --bg:#0b1220; --surface:#121b30; --surface2:#0f1729;
+    --line:#22304d; --blue:#3da9fc; --cyan:#5fd0ff; --green:#34d399; --amber:#fbbf24;
+    --text:#eaf1fc; --muted:#8ea0c4;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);
+    font-family:"Segoe UI",Rubik,Arial,system-ui,sans-serif;line-height:1.7;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 22px}
+  .glow{position:fixed;inset:0;z-index:0;pointer-events:none;
+    background:radial-gradient(700px 420px at 50% -8%,rgba(61,169,252,.22),transparent 60%),
+               radial-gradient(560px 360px at 90% 12%,rgba(52,211,153,.12),transparent 60%)}
+  header,main,footer{position:relative;z-index:1}
+
+  /* nav */
+  nav{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;max-width:1080px;margin:0 auto}
+  .brand{display:flex;align-items:center;gap:12px;font-size:22px;font-weight:700;letter-spacing:.12em}
+  .brand small{font-weight:400;letter-spacing:.18em;color:var(--blue)}
+  .nav-links{display:flex;gap:26px;color:var(--muted);font-size:15px}
+  .nav-links a:hover{color:var(--text)}
+  @media(max-width:720px){.nav-links{display:none}}
+
+  /* hero */
+  .hero{text-align:center;padding:46px 0 30px}
+  .hero h1{font-size:clamp(44px,9vw,82px);font-weight:800;letter-spacing:.06em;
+    background:linear-gradient(120deg,#cfe6ff,#3da9fc 55%,#34d399);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero .tag{font-size:clamp(18px,3.4vw,26px);margin-top:6px;color:var(--text)}
+  .hero p.lead{max-width:620px;margin:16px auto 0;color:var(--muted);font-size:17px}
+  .cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:26px}
+  .btn{padding:14px 26px;border-radius:14px;font-size:16px;font-weight:600;border:1px solid transparent;cursor:pointer;transition:.18s}
+  .btn-primary{background:linear-gradient(120deg,var(--blue),var(--cyan));color:#04243f;box-shadow:0 10px 30px -10px rgba(61,169,252,.7)}
+  .btn-primary:hover{transform:translateY(-2px)}
+  .btn-ghost{background:transparent;border-color:var(--line);color:var(--text)}
+  .btn-ghost:hover{border-color:var(--blue);color:var(--blue)}
+  .chips{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:24px}
+  .chip{font-size:13px;color:var(--muted);background:var(--surface2);border:1px solid var(--line);padding:7px 14px;border-radius:999px}
+  .chip b{color:var(--green);font-weight:600}
+
+  /* logo */
+  .logo{width:88px;height:88px;margin:0 auto 10px;display:block;filter:drop-shadow(0 8px 26px rgba(61,169,252,.45))}
+
+  /* sections */
+  section{padding:46px 0}
+  .sec-title{text-align:center;font-size:clamp(26px,5vw,38px);font-weight:700;margin-bottom:6px}
+  .sec-sub{text-align:center;color:var(--muted);margin-bottom:34px;font-size:16px}
+
+  .tools{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}
+  .card{background:linear-gradient(180deg,var(--surface),var(--surface2));border:1px solid var(--line);
+    border-radius:20px;padding:26px 24px;transition:.2s}
+  .card:hover{transform:translateY(-4px);border-color:var(--blue)}
+  .card .ico{font-size:40px;line-height:1}
+  .card h3{font-size:22px;font-weight:700;margin:14px 0 8px}
+  .card p{color:var(--muted);font-size:15px}
+  .card ul{list-style:none;margin-top:14px;display:grid;gap:7px}
+  .card li{font-size:14px;color:var(--text);display:flex;gap:8px;align-items:flex-start}
+  .card li::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--green);margin-top:8px;flex:none}
+
+  .feat{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+  .feat .f{background:var(--surface2);border:1px solid var(--line);border-radius:16px;padding:20px 18px}
+  .feat .f .e{font-size:26px}
+  .feat .f h4{font-size:17px;font-weight:600;margin:8px 0 4px}
+  .feat .f p{color:var(--muted);font-size:14px}
+
+  .langs{text-align:center}
+  .langrow{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:8px}
+  .lang{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px 30px;font-size:20px;min-width:150px}
+  .lang span{display:block;font-size:13px;color:var(--muted);margin-top:4px}
+
+  .download{background:linear-gradient(120deg,rgba(61,169,252,.14),rgba(52,211,153,.1));
+    border:1px solid var(--line);border-radius:24px;padding:40px 26px;text-align:center;margin:10px 0}
+  .download h2{font-size:clamp(24px,4.5vw,34px);font-weight:700}
+  .download p{color:var(--muted);margin:8px 0 22px}
+
+  footer{border-top:1px solid var(--line);padding:28px 0;text-align:center;color:var(--muted);font-size:14px;margin-top:30px}
+  footer a{color:var(--blue)}
+
+  /* animated phone demo */
+  .demo{text-align:center}
+  .phone{width:262px;height:534px;margin:30px auto 0;border-radius:38px;background:#05080f;
+    border:2px solid #22304d;padding:12px;position:relative;box-shadow:0 30px 60px -20px rgba(0,0,0,.7);
+    animation:dwobble 5s ease-in-out infinite}
+  .screen{position:relative;width:100%;height:100%;border-radius:28px;overflow:hidden;background:#0e1626}
+  .cam{position:absolute;inset:-9%;background:linear-gradient(160deg,#d2c9b6,#d9d2c2 38%,#b6ad9c 76%,#a59c8c);
+    animation:dpan 6s ease-in-out infinite}
+  .scan{position:absolute;left:0;right:0;height:42%;background:linear-gradient(rgba(61,169,252,.14),transparent);animation:dscan 6s linear infinite}
+  .hud{position:absolute;top:0;left:0;right:0;padding:9px;font-size:13px;color:#fff;background:rgba(11,18,32,.55);z-index:5}
+  .fp{position:absolute;width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,.75);animation:dfp 2.4s infinite}
+  .cross{position:absolute;top:50%;left:50%;width:36px;height:36px;transform:translate(-50%,-50%);opacity:0;animation:dcross 6s infinite}
+  .cross::before,.cross::after{content:"";position:absolute;background:#9fb2d6}
+  .cross::before{left:50%;top:0;width:2px;height:100%;transform:translateX(-50%)}
+  .cross::after{top:50%;left:0;height:2px;width:100%;transform:translateY(-50%)}
+  .rip{position:absolute;width:16px;height:16px;border-radius:50%;border:2px solid #34d399;transform:translate(-50%,-50%) scale(0);opacity:0}
+  .ripA{top:62%;left:30%;animation:dripA 6s infinite}
+  .ripB{top:58%;left:72%;animation:dripB 6s infinite}
+  .dotA,.dotB{position:absolute;width:16px;height:16px;border-radius:50%;background:#34d399;border:3px solid #fff}
+  .dotA{top:62%;left:30%;transform:translate(-50%,-50%) scale(0);animation:dpopA 6s infinite}
+  .dotB{top:58%;left:72%;transform:translate(-50%,-50%) scale(0);animation:dpopB 6s infinite}
+  .line{position:absolute;top:60%;left:30%;height:5px;width:0;background:#fff;border-radius:3px;
+    box-shadow:0 0 14px 3px rgba(61,169,252,.65);transform:rotate(-3deg);transform-origin:left center;animation:ddraw 6s infinite}
+  .pill{position:absolute;top:44%;left:51%;transform:translateX(-50%);background:rgba(11,18,32,.92);
+    color:#fff;font-weight:700;font-size:15px;padding:6px 14px;border-radius:14px;opacity:0;animation:dpill 6s infinite}
+  @keyframes dwobble{0%,100%{transform:rotate(-1deg) translateY(0)}50%{transform:rotate(1deg) translateY(-5px)}}
+  @keyframes dpan{0%{transform:scale(1.1) translate(1.5%,1%)}50%{transform:scale(1.17) translate(-1.5%,-1.5%)}100%{transform:scale(1.1) translate(1.5%,1%)}}
+  @keyframes dscan{0%{top:-42%}100%{top:100%}}
+  @keyframes dfp{0%,100%{opacity:0;transform:scale(.4)}50%{opacity:.85;transform:scale(1)}}
+  @keyframes dcross{0%,15%{opacity:.95}25%,100%{opacity:0}}
+  @keyframes dripA{0%,15%{transform:translate(-50%,-50%) scale(.4);opacity:.85}26%{transform:translate(-50%,-50%) scale(3.4);opacity:0}100%{opacity:0}}
+  @keyframes dripB{0%,44%{transform:translate(-50%,-50%) scale(.4);opacity:.85}55%{transform:translate(-50%,-50%) scale(3.4);opacity:0}100%{opacity:0}}
+  @keyframes dpopA{0%,15%{transform:translate(-50%,-50%) scale(0)}22%{transform:translate(-50%,-50%) scale(1.35)}28%,90%{transform:translate(-50%,-50%) scale(1)}97%,100%{transform:translate(-50%,-50%) scale(0)}}
+  @keyframes ddraw{0%,28%{width:0}46%,90%{width:42%}97%,100%{width:0}}
+  @keyframes dpopB{0%,44%{transform:translate(-50%,-50%) scale(0)}51%{transform:translate(-50%,-50%) scale(1.35)}57%,90%{transform:translate(-50%,-50%) scale(1)}97%,100%{transform:translate(-50%,-50%) scale(0)}}
+  @keyframes dpill{0%,50%{opacity:0;transform:translateX(-50%) translateY(7px)}58%,88%{opacity:1;transform:translateX(-50%) translateY(0)}95%,100%{opacity:0;transform:translateX(-50%) translateY(7px)}}
+</style>
+</head>
+<body>
+<div class="glow"></div>
+
+<header>
+  <nav>
+    <div class="brand">
+      <svg class="logo" style="width:38px;height:38px;margin:0" viewBox="0 0 100 100" aria-hidden="true">
+        <defs><radialGradient id="bg" cx="50%" cy="40%" r="65%">
+          <stop offset="0" stop-color="#16273f"/><stop offset="1" stop-color="#0a1018"/></radialGradient></defs>
+        <circle cx="50" cy="50" r="48" fill="url(#bg)"/>
+        <circle cx="50" cy="50" r="34" fill="none" stroke="#3da9fc" stroke-width="3"/>
+        <g stroke="#3da9fc" stroke-width="2.4" stroke-linecap="round">
+          <line x1="50" y1="13" x2="50" y2="21"/><line x1="50" y1="79" x2="50" y2="87"/>
+          <line x1="13" y1="50" x2="21" y2="50"/><line x1="79" y1="50" x2="87" y2="50"/></g>
+        <line x1="28" y1="50" x2="72" y2="50" stroke="#5b6b8c" stroke-width="2"/>
+        <line x1="50" y1="28" x2="50" y2="72" stroke="#5b6b8c" stroke-width="2"/>
+        <circle cx="62" cy="40" r="9" fill="#34d399"/>
+      </svg>
+      GADIS
+    </div>
+    <div class="nav-links">
+      <a href="#tools">הכלים</a>
+      <a href="#why">יתרונות</a>
+      <a href="#langs">שפות</a>
+      <a href="#price">מחיר</a>
+      <a href="#get">הורדה</a>
+    </div>
+    <a class="btn btn-primary" style="padding:9px 18px;font-size:14px" href="https://files.catbox.moe/t8csor.apk">⬇️ הורד APK</a>
+  </nav>
+</header>
+
+<main>
+  <section class="hero wrap">
+    <svg class="logo" viewBox="0 0 100 100" aria-label="GADIS logo">
+      <defs><radialGradient id="bg2" cx="50%" cy="40%" r="65%">
+        <stop offset="0" stop-color="#16273f"/><stop offset="1" stop-color="#0a1018"/></radialGradient></defs>
+      <circle cx="50" cy="50" r="48" fill="url(#bg2)"/>
+      <circle cx="50" cy="50" r="34" fill="none" stroke="#3da9fc" stroke-width="3"/>
+      <g stroke="#3da9fc" stroke-width="2.4" stroke-linecap="round">
+        <line x1="50" y1="13" x2="50" y2="21"/><line x1="50" y1="79" x2="50" y2="87"/>
+        <line x1="13" y1="50" x2="21" y2="50"/><line x1="79" y1="50" x2="87" y2="50"/></g>
+      <line x1="28" y1="50" x2="72" y2="50" stroke="#5b6b8c" stroke-width="2"/>
+      <line x1="50" y1="28" x2="50" y2="72" stroke="#5b6b8c" stroke-width="2"/>
+      <circle cx="62" cy="40" r="9" fill="#34d399"/>
+    </svg>
+    <h1>GADIS</h1>
+    <div class="tag">ארגז הכלים למדידה — בכיס שלך</div>
+    <p class="lead">שלושה כלים מקצועיים באפליקציה אחת: מד מרחק במציאות רבודה (AR), פלס דיגיטלי וגלאי מתכות. מדויק, מהיר, ועובד גם בלי אינטרנט.</p>
+    <div class="cta">
+      <a class="btn btn-primary" href="https://files.catbox.moe/t8csor.apk">⬇️ הורד עכשיו · חינם</a>
+      <a class="btn btn-ghost" href="#price">שדרוג ל‑Pro</a>
+    </div>
+    <div class="chips">
+      <div class="chip"><b>✓</b> עובד אופליין</div>
+      <div class="chip"><b>✓</b> 3 שפות</div>
+      <div class="chip"><b>✓</b> ללא פרסומות</div>
+      <div class="chip"><b>✓</b> חינם להורדה</div>
+    </div>
+  </section>
+
+  <section class="wrap demo">
+    <div class="sec-title">ראו את זה בפעולה</div>
+    <div class="sec-sub">מדידה אמיתית דרך המצלמה — נקודה, קו, ומרחק מדויק</div>
+    <div class="phone">
+      <div class="screen">
+        <div class="cam"></div>
+        <div class="scan"></div>
+        <div class="fp" style="top:24%;left:20%"></div>
+        <div class="fp" style="top:33%;left:74%;animation-delay:.5s"></div>
+        <div class="fp" style="top:70%;left:17%;animation-delay:1s"></div>
+        <div class="fp" style="top:80%;left:63%;animation-delay:1.5s"></div>
+        <div class="fp" style="top:48%;left:50%;animation-delay:.8s"></div>
+        <div class="hud" id="demoHud">📐 מד מרחק</div>
+        <div class="cross"></div>
+        <div class="line"></div>
+        <div class="rip ripA"></div>
+        <div class="rip ripB"></div>
+        <div class="dotA"></div>
+        <div class="dotB"></div>
+        <div class="pill"><span id="pillNum">39.4</span> ס"מ</div>
+      </div>
+    </div>
+  </section>
+  <script>
+  (function(){
+    var hud=document.getElementById('demoHud'),num=document.getElementById('pillNum');
+    if(!hud||!num) return;
+    function cycle(){
+      hud.textContent='📐 כוון את הצלב';
+      setTimeout(function(){hud.textContent='⚪ נקודה ראשונה';},1350);
+      setTimeout(function(){hud.textContent='⚪ נקודה שנייה';},3050);
+      setTimeout(function(){
+        hud.textContent='📏 מודד…';
+        var v=0,t=setInterval(function(){
+          v+=Math.random()*5+2.5;
+          if(v>=39.4){v=39.4;clearInterval(t);hud.textContent='✓ נמדד · 39.4 ס"מ';}
+          num.textContent=v.toFixed(1);
+        },40);
+      },3450);
+    }
+    cycle();setInterval(cycle,6000);
+  })();
+  </script>
+
+  <section id="tools" class="wrap">
+    <div class="sec-title">שלושה כלים. אפליקציה אחת.</div>
+    <div class="sec-sub">כל מה שצריך כדי למדוד, ליישר ולגלות</div>
+    <div class="tools">
+      <div class="card">
+        <div class="ico">📐</div>
+        <h3>מד מרחק AR</h3>
+        <p>מדידת מרחקים אמיתית דרך המצלמה — הנח נקודות במרחב וקבל מדידה מדויקת.</p>
+        <ul>
+          <li>כוונת חכמה עם משוב ירוק/כתום לדיוק</li>
+          <li>מדידה רב‑קטעית, היקף ושטח</li>
+          <li>מטר, אינץ' וצילום עם המידה</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="ico">🫧</div>
+        <h3>פלס דיגיטלי</h3>
+        <p>בועה מדויקת לבדיקת מאוזן ואנכי, עם כיול ומשוב ברגע שמתאזן.</p>
+        <ul>
+          <li>כיול "אפס" על כל משטח</li>
+          <li>מצב קצה לבדיקת קירות אנכיים</li>
+          <li>רטט וצליל + נעילת קריאה</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="ico">🧲</div>
+        <h3>גלאי מתכות</h3>
+        <p>איתור ברזל ופלדה מאחורי קירות בעזרת החיישן המגנטי של הטלפון.</p>
+        <ul>
+          <li>סליידר רגישות מתכוונן</li>
+          <li>סרגל עוצמה צבעוני + שיא</li>
+          <li>רטט, צליל וייצוב אוטומטי</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="why" class="wrap">
+    <div class="sec-title">למה GADIS?</div>
+    <div class="sec-sub">פשוט, מדויק, ובלי שטויות</div>
+    <div class="feat">
+      <div class="f"><div class="e">🎯</div><h4>AR אמיתי</h4><p>מדידה דרך המצלמה עם ARCore — לא ניחוש, מרחק אמיתי במרחב.</p></div>
+      <div class="f"><div class="e">⚙️</div><h4>כיול מדויק</h4><p>אפס את הפלס והגלאי לכל משטח לתוצאות אמינות.</p></div>
+      <div class="f"><div class="e">📷</div><h4>צילום עם מדידה</h4><p>שמור תמונה עם המידות צרובות עליה — מושלם לתיעוד.</p></div>
+      <div class="f"><div class="e">🌍</div><h4>3 שפות</h4><p>עברית, אנגלית וערבית — אוטומטית לפי שפת הטלפון.</p></div>
+      <div class="f"><div class="e">📴</div><h4>עובד אופליין</h4><p>בלי אינטרנט, בלי חשבון, בלי איסוף נתונים.</p></div>
+      <div class="f"><div class="e">⚡</div><h4>קל ומהיר</h4><p>ממשק נקי, פתיחה מיידית, ושלושה כלים במסך אחד.</p></div>
+    </div>
+  </section>
+
+  <section id="langs" class="wrap langs">
+    <div class="sec-title">בשפה שלך</div>
+    <div class="sec-sub">האפליקציה מתאימה את עצמה אוטומטית לשפת המכשיר</div>
+    <div class="langrow">
+      <div class="lang">עברית<span>Hebrew · RTL</span></div>
+      <div class="lang">English<span>English · LTR</span></div>
+      <div class="lang">العربية<span>Arabic · RTL</span></div>
+    </div>
+  </section>
+
+  <section id="price" class="wrap">
+    <div class="sec-title">חינם להתחיל. Pro פעם אחת.</div>
+    <div class="sec-sub">בלי מנויים, בלי הפתעות — שדרוג חד‑פעמי לכל החיים</div>
+    <div class="tools" style="max-width:760px;margin:0 auto">
+      <div class="card" style="text-align:center">
+        <div class="chip" style="display:inline-block">חינם</div>
+        <div style="margin:16px 0 2px;font-size:48px;font-weight:800;line-height:1">$0</div>
+        <p style="color:var(--muted)">להורדה ולשימוש לתמיד</p>
+        <ul style="text-align:right;max-width:280px;margin:18px auto 0">
+          <li>שלושת הכלים — מרחק, פלס, גלאי</li>
+          <li>מדידת מרחק בודדת + כיול AR</li>
+          <li>פלס מלא וגלאי מתכות מלא</li>
+          <li>3 שפות · עובד אופליין</li>
+        </ul>
+        <a class="btn btn-ghost" style="margin-top:24px;display:inline-block" href="https://files.catbox.moe/t8csor.apk">הורד חינם</a>
+      </div>
+      <div class="card" style="text-align:center;border:2px solid var(--blue)">
+        <div class="chip" style="display:inline-block;color:var(--green);border-color:var(--green)">Pro · פופולרי</div>
+        <div style="margin:16px 0 2px;font-size:48px;font-weight:800;line-height:1;
+          background:linear-gradient(120deg,var(--blue),var(--green));-webkit-background-clip:text;background-clip:text;color:transparent">$9.99</div>
+        <p style="color:var(--muted)">תשלום חד‑פעמי · לכל החיים</p>
+        <ul style="text-align:right;max-width:280px;margin:18px auto 0">
+          <li>כל מה שבחינם, ובנוסף:</li>
+          <li>📐 מדידה רב‑קטעית, היקף ושטח</li>
+          <li>📏 יחידות אינץ' ורגל</li>
+          <li>📷 צילום עם המידה צרובה</li>
+          <li>♾️ כל העדכונים העתידיים</li>
+        </ul>
+        <a class="btn btn-primary" style="margin-top:24px;display:inline-block" href="https://www.paypal.me/GADIS62/9.99USD" target="_blank" rel="noopener">רכוש Pro · $9.99</a>
+        <p style="font-size:13px;color:var(--muted);margin-top:14px">תשלום מאובטח דרך PayPal</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="howpro" class="wrap">
+    <div class="sec-title">איך פותחים Pro?</div>
+    <div class="sec-sub">שלושה צעדים פשוטים — תשלום חד‑פעמי, פתיחה לתמיד</div>
+    <div class="feat">
+      <div class="f"><div class="e">1️⃣</div><h4>מורידים את האפליקציה</h4><p>הורד והתקן את GADIS בחינם — כל הכלים זמינים מיד.</p></div>
+      <div class="f"><div class="e">2️⃣</div><h4>משלמים $9.99 ב‑PayPal</h4><p>לחיצה על "רכוש Pro" פותחת תשלום מאובטח. אחרי התשלום נשלח לך קוד הפעלה ייחודי.</p></div>
+      <div class="f"><div class="e">3️⃣</div><h4>מזינים את הקוד</h4><p>באפליקציה: פיצ'ר Pro → "יש לי קוד" → הזן את הקוד. וזהו — Pro נפתח לתמיד.</p></div>
+    </div>
+    <div style="text-align:center;margin-top:26px">
+      <a class="btn btn-primary" href="https://www.paypal.me/GADIS62/9.99USD" target="_blank" rel="noopener">רכוש Pro · $9.99</a>
+    </div>
+  </section>
+
+  <section id="get" class="wrap">
+    <div class="download">
+      <h2>מוכן למדוד?</h2>
+      <p>הורד את GADIS עכשיו והפוך את הטלפון לארגז כלים מלא.</p>
+      <div class="cta">
+        <a class="btn btn-primary" href="https://files.catbox.moe/t8csor.apk">⬇️ הורד APK · חינם</a>
+        <a class="btn btn-ghost" href="https://efi621515.github.io/measure-tools/privacy.html">מדיניות פרטיות</a>
+      </div>
+      <p style="font-size:13px;margin-top:18px">אנדרואיד 8.0 ומעלה · גרסת AR דורשת ARCore (Google Play Services for AR)<br>בהתקנה ראשונה אשר \"מקורות לא ידועים\" כשהמערכת מבקשת.</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    GADIS · ארגז כלים למדידה &nbsp;·&nbsp;
+    <a href="https://efi621515.github.io/measure-tools/privacy.html">פרטיות</a>
+    &nbsp;·&nbsp; © 2026
+  </div>
+</footer>
+</body>
+</html>
